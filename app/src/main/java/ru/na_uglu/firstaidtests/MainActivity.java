@@ -8,6 +8,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -18,14 +20,14 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-       FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        firstAidTests[] userTests = new firstAidTests[3];
+        userTests[0] = new firstAidTests("Первая помощь на дороге", "Пригодится водителю", 0);
+        userTests[1] = new firstAidTests("1", "2", 5);
+        userTests[2] = new firstAidTests("2", "2", 3);
+        firstAidTestsAdapter adapter;
+        adapter = new firstAidTestsAdapter(this, userTests);
+        ListView listOfTests = (ListView)findViewById(R.id.listOfTests);
+        listOfTests.setAdapter(adapter);
     }
 
     @Override
