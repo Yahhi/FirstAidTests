@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
         firstAidTest[] userTests = new firstAidTest[3];
         userTests[0] = new firstAidTest("Первая помощь на дороге", "Пригодится водителю", 4);
         userTests[1] = new firstAidTest("1", "2", 5);
-        userTests[2] = new firstAidTest("2", "5", 3);
+        userTests[2] = new firstAidTest("2", "5", -1);
         firstAidTestsAdapter adapter;
         adapter = new firstAidTestsAdapter(this, userTests);
         ListView listOfTests = (ListView)findViewById(R.id.listOfTests);

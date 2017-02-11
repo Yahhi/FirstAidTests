@@ -60,33 +60,43 @@ public class firstAidTestsAdapter extends BaseAdapter {
         }
         viewHolder.txtTitle.setText(testsToShow[position].name);
         viewHolder.txtDescription.setText(testsToShow[position].description);
-        viewHolder.setStarsRate(testsToShow[position].starsForUser);
-
+        if ((testsToShow[position].starsForUser <=5) && (testsToShow[position].starsForUser >= 0)) {
+            viewHolder.setStarsRate(testsToShow[position].starsForUser);
+        }
 
         return convertView;
     }
     public class ViewHolder {
-        public final ImageView[] imgs = new ImageView[5];
+        private static final int UNDEFINED_COUNT = -1;
+        private final ImageView[] imgs = new ImageView[5];
         public final TextView txtTitle;
         public final TextView txtDescription;
+        private int starsCount = UNDEFINED_COUNT;
 
         public ViewHolder(View view, int[] imageIds, int txtTitleId, int txtDescId) {
             int i = 0;
             for (int imgId : imageIds) {
-                imgs[i++] = (ImageView) view.findViewById(imgId);
+                imgs[i] = (ImageView) view.findViewById(imgId);
+                imgs[i].setVisibility(View.INVISIBLE);
+                i++;
             }
             txtTitle = (TextView) view.findViewById(txtTitleId);
             txtDescription = (TextView) view.findViewById(txtDescId);
         }
 
         public void setStarsRate(int starsCount) {
-            //txtTitle.setText("may");
+            this.starsCount = starsCount;
             for (int i = 4; i >= 0; i--) {
-                if (starsCount > i) {
-                    imgs[i].setImageResource(android.R.drawable.star_on);
-                } else {
-                    imgs[i].setImageResource(android.R.drawable.star_off);
-                }
+                setOneStar(i);
+            }
+        }
+
+        private void setOneStar(int currentStar) {
+            imgs[currentStar].setVisibility(View.VISIBLE);
+            if (starsCount > currentStar) {
+                imgs[currentStar].setImageResource(android.R.drawable.star_on);
+            } else {
+                imgs[currentStar].setImageResource(android.R.drawable.star_off);
             }
         }
     }
