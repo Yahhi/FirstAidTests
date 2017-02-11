@@ -1,14 +1,10 @@
 package ru.na_uglu.firstaidtests;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 public class MainActivity extends AppCompatActivity {
@@ -20,10 +16,10 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        firstAidTests[] userTests = new firstAidTests[3];
-        userTests[0] = new firstAidTests("Первая помощь на дороге", "Пригодится водителю", 0);
-        userTests[1] = new firstAidTests("1", "2", 5);
-        userTests[2] = new firstAidTests("2", "2", 3);
+        firstAidTest[] userTests = new firstAidTest[3];
+        userTests[0] = new firstAidTest("Первая помощь на дороге", "Пригодится водителю", 4);
+        userTests[1] = new firstAidTest("1", "2", 5);
+        userTests[2] = new firstAidTest("2", "5", 3);
         firstAidTestsAdapter adapter;
         adapter = new firstAidTestsAdapter(this, userTests);
         ListView listOfTests = (ListView)findViewById(R.id.listOfTests);
