@@ -1,10 +1,14 @@
 package ru.na_uglu.firstaidtests;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 public class MainActivity extends AppCompatActivity {
@@ -22,8 +26,20 @@ public class MainActivity extends AppCompatActivity {
         userTests[2] = new firstAidTest("2", "5", -1);
         firstAidTestsAdapter adapter;
         adapter = new firstAidTestsAdapter(this, userTests);
+
         ListView listOfTests = (ListView)findViewById(R.id.listOfTests);
         listOfTests.setAdapter(adapter);
+
+        listOfTests.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                firstAidTest clickedTest = (firstAidTest) parent.getItemAtPosition(position);
+
+                Intent intent = new Intent(parent.getContext(), testPassing.class);
+                intent.putExtra("testName", clickedTest.name);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override

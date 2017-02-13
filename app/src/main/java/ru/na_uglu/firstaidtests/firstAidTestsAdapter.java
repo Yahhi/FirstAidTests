@@ -28,7 +28,8 @@ public class firstAidTestsAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        return null;
+        firstAidTest aidTest = testsToShow[position];
+        return aidTest;
     }
 
     @Override
