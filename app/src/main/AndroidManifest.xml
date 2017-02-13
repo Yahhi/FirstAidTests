@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".testPassing"
+            android:name=".testPassingActivity"
             android:label="@string/title_activity_test_passing"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">

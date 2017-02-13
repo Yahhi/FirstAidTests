@@ -1,6 +1,5 @@
 package ru.na_uglu.firstaidtests;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +12,8 @@ import android.widget.ListView;
 
 public class MainActivity extends AppCompatActivity {
 
+    DBHelper myDB;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,10 +21,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        firstAidTest[] userTests = new firstAidTest[3];
-        userTests[0] = new firstAidTest("Первая помощь на дороге", "Пригодится водителю", 4);
-        userTests[1] = new firstAidTest("1", "2", 5);
-        userTests[2] = new firstAidTest("2", "5", -1);
+        myDB = new DBHelper(this);
+        firstAidTest[] userTests = myDB.getTests();
         firstAidTestsAdapter adapter;
         adapter = new firstAidTestsAdapter(this, userTests);
 
@@ -35,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 firstAidTest clickedTest = (firstAidTest) parent.getItemAtPosition(position);
 
-                Intent intent = new Intent(parent.getContext(), testPassing.class);
+                Intent intent = new Intent(parent.getContext(), testPassingActivity.class);
                 intent.putExtra("testName", clickedTest.name);
                 startActivity(intent);
             }
