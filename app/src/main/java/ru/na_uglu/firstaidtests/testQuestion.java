@@ -16,5 +16,10 @@ public class testQuestion extends Object {
         answers[2] = new testAnswer(answerWrong2, false);
         answers[3] = new testAnswer(answerWrong3, false);
     }
+
+    public testQuestion(String text, testAnswer[] answers) {
+        question = text;
+        this.answers = answers;
+    }
 }
 

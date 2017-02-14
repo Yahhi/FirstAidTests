@@ -6,8 +6,11 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.TextView;
 
 public class testPassingActivity extends AppCompatActivity {
+
+    DBHelper myDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +23,12 @@ public class testPassingActivity extends AppCompatActivity {
 
         String testName = getIntent().getExtras().getString("testName");
         this.setTitle(testName);
+
+        myDB = new DBHelper(this);
+        testQuestion questionToShow = myDB.getQuestion(testName, 0);
+
+        TextView questionText = (TextView) findViewById(R.id.testQuestion);
+        questionText.setText(questionToShow.question);
     }
 
 }
