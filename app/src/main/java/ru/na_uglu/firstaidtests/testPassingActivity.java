@@ -6,6 +6,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 public class testPassingActivity extends AppCompatActivity {
@@ -29,6 +31,13 @@ public class testPassingActivity extends AppCompatActivity {
 
         TextView questionText = (TextView) findViewById(R.id.testQuestion);
         questionText.setText(questionToShow.question);
+
+        RadioGroup answersRadioGroup = (RadioGroup) findViewById(R.id.answersRadioGroup);
+        for (testAnswer answer : questionToShow.answers) {
+            RadioButton radioButton = new RadioButton(this);
+            radioButton.setText(answer.text);
+            answersRadioGroup.addView(radioButton);
+        }
     }
 
 }
