@@ -1,10 +1,12 @@
 package ru.na_uglu.firstaidtests;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -15,6 +17,12 @@ public class testPassingActivity extends AppCompatActivity {
     int currentQuestion = -1;
     String testName;
     int[] userAnswers;
+    int answersSet = 0;
+
+    int radioButtonsUsed = 0;
+    int radioButtonsActive = 0;
+
+    int UNSET_ANSWER = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,32 +38,110 @@ public class testPassingActivity extends AppCompatActivity {
 
         myDB = new DBHelper(this);
         userAnswers = new int[myDB.getInTestQuestionCount(testName)];
+        for (int i = 0; i < userAnswers.length; i++) {
+            userAnswers[i] = UNSET_ANSWER;
+        }
 
-        showNextQuestion();
+        currentQuestion++;
+        showQuestion();
+
+        Button checkResults = (Button) findViewById(R.id.getResultButton);
+        checkResults.setVisibility(View.INVISIBLE);
+    }
+
+    public void onClickCheckResult(View v) {
+        Intent intent  = new Intent(v.getContext(), resultsActivity.class);
+        intent.putExtra("allAnswersCount", userAnswers.length);
+        intent.putExtra("rightAnswersCount", getRightAnswersCount());
+        startActivity(intent);
+    }
+
+    private int getRightAnswersCount() {
+        int rightAnswersCount = 0;
+        for (int i = 0; i < userAnswers.length; i++) {
+            rightAnswersCount += checkUserAnswer(i, userAnswers[i]);
+        }
+        return rightAnswersCount;
+    }
+
+    private int checkUserAnswer(int questionNumber, int userAnswer) {
+        testQuestion question = myDB.getQuestion(testName, questionNumber);
+        if (question.answers[userAnswer-1].isRight) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     public void onClickAcceptAnswers(View v) {
         saveUserAnswer();
-        showNextQuestion();
+        if (currentQuestion < userAnswers.length-1) {
+            currentQuestion++;
+        }
+        showQuestion();
     }
 
     private void saveUserAnswer() {
         RadioGroup answersRadioGroup = (RadioGroup) findViewById(R.id.answersRadioGroup);
-        userAnswers[currentQuestion] = answersRadioGroup.getCheckedRadioButtonId();
+        if (userAnswers[currentQuestion] == UNSET_ANSWER) {
+            answersSet++;
+        }
+        userAnswers[currentQuestion] = answersRadioGroup.getCheckedRadioButtonId() - radioButtonsUsed;
     }
 
-    private void showNextQuestion() {
-        currentQuestion++;
+    private void showQuestion() {
+        checkNextPrevButtonsState();
+
         testQuestion questionToShow = myDB.getQuestion(testName, currentQuestion);
         TextView questionText = (TextView) findViewById(R.id.testQuestion);
         questionText.setText(questionToShow.question);
 
         RadioGroup answersRadioGroup = (RadioGroup) findViewById(R.id.answersRadioGroup);
         answersRadioGroup.removeAllViews();
+        radioButtonsUsed += radioButtonsActive;
+        radioButtonsActive = 0;
         for (testAnswer answer : questionToShow.answers) {
             RadioButton radioButton = new RadioButton(this);
             radioButton.setText(answer.text);
             answersRadioGroup.addView(radioButton);
+            radioButtonsActive++;
         }
+    }
+
+    private void checkNextPrevButtonsState() {
+        Button nextButton = (Button) findViewById(R.id.nextButton);
+        Button prevButton = (Button) findViewById(R.id.previousButton);
+        final int maxCurrentQuestion = userAnswers.length-1;
+        if (currentQuestion == 0) {
+                prevButton.setVisibility(View.INVISIBLE);
+        } else if (currentQuestion == maxCurrentQuestion) {
+                nextButton.setVisibility(View.INVISIBLE);
+        } else {
+            prevButton.setVisibility(View.VISIBLE);
+            prevButton.setVisibility(View.VISIBLE);
+        }
+
+        if (allAnswersSet()) {
+            Button checkResults = (Button) findViewById(R.id.getResultButton);
+            checkResults.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private boolean allAnswersSet() {
+        boolean answersSetEqualAllAnswers = false;
+        if (answersSet == userAnswers.length) {
+            answersSetEqualAllAnswers = true;
+        }
+        return answersSetEqualAllAnswers;
+    }
+
+    public void prevButtonClick(View view) {
+        currentQuestion--;
+        showQuestion();
+    }
+
+    public void nextButtonClick(View view) {
+        currentQuestion++;
+        showQuestion();
     }
 }

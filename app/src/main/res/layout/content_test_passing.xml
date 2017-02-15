@@ -14,7 +14,7 @@
     tools:showIn="@layout/activity_test_passing">
 
     <TextView
-        android:text="Вопрос теста"
+        android:text="@string/testQuestion"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -34,13 +34,41 @@
     </RadioGroup>
 
     <Button
-        android:text="Ответить"
+        android:text="@string/checkResult"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/answerAccept"
+        android:id="@+id/getResultButton"
         android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:onClick="onClickCheckResult"/>
+
+    <Button
+        android:text="@string/prevButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/previousButton"
+        android:onClick="prevButtonClick"
+        android:layout_above="@+id/getResultButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="@string/answerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/answerAcceptButton"
+        android:onClick="onClickAcceptAnswers"
+        android:layout_above="@+id/getResultButton"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:text="@string/nextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/nextButton"
+        android:onClick="nextButtonClick"
+        android:layout_above="@+id/getResultButton"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:onClick="onClickAcceptAnswers" />
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
