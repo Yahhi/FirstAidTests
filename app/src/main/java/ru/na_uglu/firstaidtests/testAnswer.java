@@ -7,6 +7,7 @@ package ru.na_uglu.firstaidtests;
 public class testAnswer extends Object {
     public String text;
     public Boolean isRight;
+    public Boolean isGivenAnswer = false;
 
     public testAnswer(String text, boolean isRight) {
         this.text = text;

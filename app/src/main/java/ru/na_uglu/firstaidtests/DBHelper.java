@@ -77,9 +77,17 @@ public class DBHelper extends SQLiteOpenHelper {
         return tests;
     }
 
-    public testQuestion getQuestion(String testName, int questionNumber) {
+    public int getInTestQuestionCount(String testName) {
+        int testId = getTestId(testName);
         SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursorForQuestion = db.rawQuery("SELECT * FROM questions WHERE test_id = ?", new String[]{Integer.toString(testId)});
+        int count = cursorForQuestion.getCount();
+        cursorForQuestion.close();
+        return count;
+    }
 
+    private int getTestId(String testName) {
+        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursorForTestId = db.rawQuery("SELECT id FROM tests WHERE title = ?", new String[]{testName});
         cursorForTestId.moveToFirst();
         int testId = 1;
@@ -87,6 +95,13 @@ public class DBHelper extends SQLiteOpenHelper {
             testId = cursorForTestId.getInt(cursorForTestId.getColumnIndex("id"));
         }
         cursorForTestId.close();
+        return testId;
+    }
+
+    public testQuestion getQuestion(String testName, int questionNumber) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        int testId = getTestId(testName);
 
         Cursor cursorForQuestion = db.rawQuery("SELECT id, question FROM questions WHERE test_id = ?", new String[]{Integer.toString(testId)});
         String questionText = "";
@@ -95,6 +110,7 @@ public class DBHelper extends SQLiteOpenHelper {
             questionText = cursorForQuestion.getString(cursorForQuestion.getColumnIndex("question"));
             questionId = cursorForQuestion.getInt(cursorForQuestion.getColumnIndex("id"));
         }
+        cursorForQuestion.close();
 
         Cursor cursorForAnswers = db.rawQuery("SELECT answer, right FROM answers WHERE question_id = ?", new String[]{Integer.toString(questionId)});
         cursorForAnswers.moveToFirst();
@@ -110,6 +126,7 @@ public class DBHelper extends SQLiteOpenHelper {
             i++;
             cursorForAnswers.moveToNext();
         }
+        cursorForAnswers.close();
 
         testQuestion question = new testQuestion(questionText, answers);
         return question;
