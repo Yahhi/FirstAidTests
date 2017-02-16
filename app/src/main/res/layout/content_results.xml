@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="12dp"
         android:layout_marginStart="12dp"
-        android:id="@+id/allQuestionsNumber"
+        android:id="@+id/allAnswersCount"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/textView1"
         android:layout_toEndOf="@+id/textView1" />

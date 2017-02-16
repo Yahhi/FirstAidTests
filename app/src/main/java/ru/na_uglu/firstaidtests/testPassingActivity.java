@@ -19,8 +19,9 @@ public class testPassingActivity extends AppCompatActivity {
     int[] userAnswers;
     int answersSet = 0;
 
-    int radioButtonsUsed = 0;
-    int radioButtonsActive = 0;
+    boolean rightAnswer[];
+    String checkedAnswerText = "";
+    testQuestion questionToShow;
 
     int UNSET_ANSWER = -1;
 
@@ -45,6 +46,18 @@ public class testPassingActivity extends AppCompatActivity {
         currentQuestion++;
         showQuestion();
 
+        RadioGroup answers = (RadioGroup) findViewById(R.id.answersRadioGroup);
+        answers.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                RadioButton checkedButton = (RadioButton) findViewById(group.getCheckedRadioButtonId());
+                checkedAnswerText = (String) checkedButton.getText();
+
+                Button buttonSaveAnswer = (Button) findViewById(R.id.answerAcceptButton);
+                buttonSaveAnswer.setEnabled(true);
+            }
+        });
+
         Button checkResults = (Button) findViewById(R.id.getResultButton);
         checkResults.setVisibility(View.INVISIBLE);
     }
@@ -66,7 +79,7 @@ public class testPassingActivity extends AppCompatActivity {
 
     private int checkUserAnswer(int questionNumber, int userAnswer) {
         testQuestion question = myDB.getQuestion(testName, questionNumber);
-        if (question.answers[userAnswer-1].isRight) {
+        if (question.answers[userAnswer].isRight) {
             return 1;
         } else {
             return 0;
@@ -86,26 +99,29 @@ public class testPassingActivity extends AppCompatActivity {
         if (userAnswers[currentQuestion] == UNSET_ANSWER) {
             answersSet++;
         }
-        userAnswers[currentQuestion] = answersRadioGroup.getCheckedRadioButtonId() - radioButtonsUsed;
+        userAnswers[currentQuestion] = questionToShow.getAnswerId(checkedAnswerText);
     }
 
     private void showQuestion() {
         checkNextPrevButtonsState();
 
-        testQuestion questionToShow = myDB.getQuestion(testName, currentQuestion);
+        questionToShow = myDB.getQuestion(testName, currentQuestion);
         TextView questionText = (TextView) findViewById(R.id.testQuestion);
         questionText.setText(questionToShow.question);
 
         RadioGroup answersRadioGroup = (RadioGroup) findViewById(R.id.answersRadioGroup);
         answersRadioGroup.removeAllViews();
-        radioButtonsUsed += radioButtonsActive;
-        radioButtonsActive = 0;
+        rightAnswer = new boolean[questionToShow.answers.length];
+        int i = 0;
         for (testAnswer answer : questionToShow.answers) {
             RadioButton radioButton = new RadioButton(this);
             radioButton.setText(answer.text);
             answersRadioGroup.addView(radioButton);
-            radioButtonsActive++;
+            rightAnswer[i++] = answer.isRight;
         }
+
+        Button buttonSaveAnswer = (Button) findViewById(R.id.answerAcceptButton);
+        buttonSaveAnswer.setEnabled(false);
     }
 
     private void checkNextPrevButtonsState() {

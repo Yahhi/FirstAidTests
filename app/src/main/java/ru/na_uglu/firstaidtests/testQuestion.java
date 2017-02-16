@@ -21,5 +21,16 @@ public class testQuestion extends Object {
         question = text;
         this.answers = answers;
     }
+
+    public int getAnswerId(String text) {
+        int id = 0;
+        for (int i = 0; i < answers.length; i++) {
+            if (answers[i].text == text) {
+                id = i;
+                break;
+            }
+        }
+        return id;
+    }
 }
 
