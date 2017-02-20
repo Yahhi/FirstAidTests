@@ -22,26 +22,22 @@
         android:layout_alignParentStart="true"
         android:id="@+id/testQuestion" />
 
-    <RadioGroup
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/testQuestion"
+    <ScrollView
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="12dp"
-        android:id="@+id/answersRadioGroup">
+        android:layout_above="@+id/previousButton"
+        android:layout_below="@id/testQuestion"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    </RadioGroup>
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/answersRadioGroup"
+            android:scrollbars="vertical"
+            />
 
-    <Button
-        android:text="@string/checkResult"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/getResultButton"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:onClick="onClickCheckResult"/>
-
+    </ScrollView>
     <Button
         android:text="@string/prevButton"
         android:layout_width="wrap_content"
@@ -70,5 +66,14 @@
         android:layout_above="@+id/getResultButton"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
+
+    <Button
+        android:text="@string/checkResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/getResultButton"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:onClick="onClickCheckResult"/>
 
 </RelativeLayout>

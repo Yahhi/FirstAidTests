@@ -32,7 +32,7 @@ public class testPassingActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         testName = getIntent().getExtras().getString("testName");
         this.setTitle(testName);
@@ -50,11 +50,13 @@ public class testPassingActivity extends AppCompatActivity {
         answers.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                RadioButton checkedButton = (RadioButton) findViewById(group.getCheckedRadioButtonId());
-                checkedAnswerText = (String) checkedButton.getText();
+                if (checkedId >= 0) { // Бывают нажатия на кнопки с перекрытием...
+                    RadioButton checkedButton = (RadioButton) findViewById(group.getCheckedRadioButtonId());
+                    checkedAnswerText = (String) checkedButton.getText();
 
-                Button buttonSaveAnswer = (Button) findViewById(R.id.answerAcceptButton);
-                buttonSaveAnswer.setEnabled(true);
+                    Button buttonSaveAnswer = (Button) findViewById(R.id.answerAcceptButton);
+                    buttonSaveAnswer.setEnabled(true);
+                }
             }
         });
 
@@ -63,6 +65,7 @@ public class testPassingActivity extends AppCompatActivity {
     }
 
     public void onClickCheckResult(View v) {
+
         Intent intent  = new Intent(v.getContext(), resultsActivity.class);
         intent.putExtra("allAnswersCount", userAnswers.length);
         intent.putExtra("rightAnswersCount", getRightAnswersCount());
@@ -95,7 +98,6 @@ public class testPassingActivity extends AppCompatActivity {
     }
 
     private void saveUserAnswer() {
-        RadioGroup answersRadioGroup = (RadioGroup) findViewById(R.id.answersRadioGroup);
         if (userAnswers[currentQuestion] == UNSET_ANSWER) {
             answersSet++;
         }
@@ -116,6 +118,10 @@ public class testPassingActivity extends AppCompatActivity {
         for (testAnswer answer : questionToShow.answers) {
             RadioButton radioButton = new RadioButton(this);
             radioButton.setText(answer.text);
+            radioButton.setPadding(2, 4, 0, 1);
+            if (userAnswers[currentQuestion] == i) {
+                radioButton.setChecked(true);
+            }
             answersRadioGroup.addView(radioButton);
             rightAnswer[i++] = answer.isRight;
         }
