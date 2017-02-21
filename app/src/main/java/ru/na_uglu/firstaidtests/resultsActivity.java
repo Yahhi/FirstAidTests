@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 public class resultsActivity extends AppCompatActivity {
 
+    int testId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,6 +23,7 @@ public class resultsActivity extends AppCompatActivity {
 
         int allAnswersCount = getIntent().getIntExtra("allAnswersCount", 0);
         int rightAnswersCount = getIntent().getIntExtra("rightAnswersCount", 0);
+        testId = getIntent().getIntExtra("testId", 0);
 
         TextView allAnswersCountOnScreen = (TextView) findViewById(R.id.allAnswersCount);
         allAnswersCountOnScreen.setText(Integer.toString(allAnswersCount));

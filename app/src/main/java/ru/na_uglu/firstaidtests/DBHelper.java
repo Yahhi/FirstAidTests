@@ -1,5 +1,6 @@
 package ru.na_uglu.firstaidtests;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -14,12 +15,12 @@ public class DBHelper extends SQLiteOpenHelper {
     static final String DATABASE_NAME = "FirstAidTests.db";
 
     public DBHelper(Context context) {
-        super(context, DATABASE_NAME, null, 4);
+        super(context, DATABASE_NAME, null, 5);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE `tests` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `description` TEXT )");
+        db.execSQL("CREATE TABLE `tests` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `description` TEXT, `top_result` INTEGER DEFAULT 0, `tryes_count` INTEGER DEFAULT 0)");
         insertTests(db);
         db.execSQL("CREATE TABLE `questions` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `test_id` INTEGER NOT NULL, `question` TEXT NOT NULL, `comment` TEXT )");
         insertQuestions(db);
@@ -29,9 +30,9 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     private void insertTests(SQLiteDatabase db) {
-        db.execSQL("INSERT INTO `tests` VALUES (1,'Первая помощь на дороге','Что необходимо знать водителю в чрезвычайной ситуации')");
-        db.execSQL("INSERT INTO `tests` VALUES (2,'Первая помощь ребенку','Маленький ребенок может упасть, удариться, съесть что-то не то... Что делать в таких ситуациях')");
-        db.execSQL("INSERT INTO `tests` VALUES (3,'Первая помощь на водоемах','О помощи в опасных ситуациях, связанных с водоемами')");
+        db.execSQL("INSERT INTO `tests` VALUES (1,'Первая помощь на дороге','Что необходимо знать водителю в чрезвычайной ситуации', -1, 0)");
+        db.execSQL("INSERT INTO `tests` VALUES (2,'Первая помощь ребенку','Маленький ребенок может упасть, удариться, съесть что-то не то... Что делать в таких ситуациях', -1, 0)");
+        db.execSQL("INSERT INTO `tests` VALUES (3,'Первая помощь на водоемах','О помощи в опасных ситуациях, связанных с водоемами', -1, 0)");
     }
 
     private void insertQuestions(SQLiteDatabase db) {
@@ -71,7 +72,8 @@ public class DBHelper extends SQLiteOpenHelper {
             tests[i++] = new firstAidTest(
                     cursor.getString(cursor.getColumnIndex("title")),
                     cursor.getString(cursor.getColumnIndex("description")),
-                    -1);
+                    cursor.getInt(cursor.getColumnIndex("top_result"))
+            );
             cursor.moveToNext();
         }
         return tests;
@@ -132,5 +134,15 @@ public class DBHelper extends SQLiteOpenHelper {
         return question;
     }
 
+    public int saveTestResult(int testId, int starsCount) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues testResult = new ContentValues(1);
+        testResult.put("top_result", starsCount);
+        return db.update("tests", testResult, "id=?", new String[]{Integer.toString(testId)});
+    }
 
+    public int saveTestResult(String testName, int starsCount) {
+        int result = saveTestResult(getTestId(testName), starsCount);
+        return result;
+    }
 }
