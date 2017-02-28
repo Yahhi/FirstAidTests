@@ -51,4 +51,16 @@
         android:layout_marginLeft="14dp"
         android:layout_marginStart="14dp"
         android:id="@+id/rightAnswersCount" />
+
+    <com.facebook.share.widget.ShareButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="34dp"
+        android:layout_marginEnd="34dp"
+        android:layout_marginBottom="16dp"
+        android:id="@+id/facebookShareButton"
+        />
 </RelativeLayout>

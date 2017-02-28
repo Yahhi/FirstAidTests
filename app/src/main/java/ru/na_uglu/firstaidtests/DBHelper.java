@@ -7,32 +7,37 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-/**
- * Created by User on 13.02.2017.
- */
+import java.sql.Time;
+import java.util.GregorianCalendar;
 
 public class DBHelper extends SQLiteOpenHelper {
     static final String DATABASE_NAME = "FirstAidTests.db";
 
     public DBHelper(Context context) {
-        super(context, DATABASE_NAME, null, 5);
+        super(context, DATABASE_NAME, null, 6);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE `tests` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `description` TEXT, `top_result` INTEGER DEFAULT 0, `tryes_count` INTEGER DEFAULT 0)");
+        db.execSQL("CREATE TABLE `tests` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
+                "`title` TEXT NOT NULL, `description` TEXT )");
         insertTests(db);
-        db.execSQL("CREATE TABLE `questions` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `test_id` INTEGER NOT NULL, `question` TEXT NOT NULL, `comment` TEXT )");
+        db.execSQL("CREATE TABLE `questions` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "+
+                "`test_id` INTEGER NOT NULL, `question` TEXT NOT NULL, `comment` TEXT )");
         insertQuestions(db);
-        db.execSQL("CREATE TABLE `answers` ( `id` INTEGER NOT NULL, `question_id` INTEGER NOT NULL, `answer` TEXT NOT NULL, `right` INTEGER DEFAULT 0, PRIMARY KEY(`id`,`question_id`) )");
+        db.execSQL("CREATE TABLE `answers` ( `id` INTEGER NOT NULL, `question_id` INTEGER NOT NULL, " +
+                "`answer` TEXT NOT NULL, `right` INTEGER DEFAULT 0, PRIMARY KEY(`id`,`question_id`) )");
         insertAnswers(db);
+        db.execSQL("CREATE TABLE `test_done` ( `test_id` INTEGER NOT NULL, "+
+                "`test_done_datetime` INTEGER NOT NULL, `questions_asked` INTEGER NOT NULL, " +
+                "`questions_right` INTEGER NOT NULL, `running_mode` TEXT DEFAULT 'general', " +
+                "`test_done_time` INTEGER, PRIMARY KEY(`test_id`,`test_done_datetime`) )");
 
     }
 
     private void insertTests(SQLiteDatabase db) {
-        db.execSQL("INSERT INTO `tests` VALUES (1,'Первая помощь на дороге','Что необходимо знать водителю в чрезвычайной ситуации', -1, 0)");
-        db.execSQL("INSERT INTO `tests` VALUES (2,'Первая помощь ребенку','Маленький ребенок может упасть, удариться, съесть что-то не то... Что делать в таких ситуациях', -1, 0)");
-        db.execSQL("INSERT INTO `tests` VALUES (3,'Первая помощь на водоемах','О помощи в опасных ситуациях, связанных с водоемами', -1, 0)");
+        db.execSQL("INSERT INTO `tests` VALUES (1,'Первая помощь на дороге','Что необходимо знать водителю в чрезвычайной ситуации')");
+        db.execSQL("INSERT INTO `tests` VALUES (2,'Первая помощь ребенку','Маленький ребенок может упасть, удариться, съесть что-то не то... Что делать в таких ситуациях')");
     }
 
     private void insertQuestions(SQLiteDatabase db) {
@@ -58,6 +63,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS tests");
         db.execSQL("DROP TABLE IF EXISTS questions");
         db.execSQL("DROP TABLE IF EXISTS answers");
+        db.execSQL("DROP TABLE IF EXISTS test_done");
         onCreate(db);
     }
 
@@ -68,15 +74,42 @@ public class DBHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM tests", null);
         cursor.moveToFirst();
         int i = 0;
-        while (cursor.isAfterLast() == false) {
+        while (!cursor.isAfterLast()) {
             tests[i++] = new firstAidTest(
                     cursor.getString(cursor.getColumnIndex("title")),
                     cursor.getString(cursor.getColumnIndex("description")),
-                    cursor.getInt(cursor.getColumnIndex("top_result"))
+                    getTestResult(cursor.getInt(cursor.getColumnIndex("id")))
             );
             cursor.moveToNext();
         }
+        cursor.close();
         return tests;
+    }
+
+    private int getTestResult(int testId) {
+        final int MAX_STARS = 5;
+
+        Long timestampLong = System.currentTimeMillis()/1000;
+        String timestampNow = timestampLong.toString();
+        Long timeDifferenceForActualTest = Long.valueOf(30*24*60*60);
+        String maxTimeDifference = timeDifferenceForActualTest.toString();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT questions_right, questions_asked FROM test_done " +
+                "WHERE ?-test_done_datetime < ? AND test_id = ?",
+                new String[]{timestampNow, maxTimeDifference, Integer.toString(testId)});
+        int markForTest = 0;
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            int questions_right = cursor.getInt(cursor.getColumnIndex("questions_right"));
+            int questions_all = cursor.getInt(cursor.getColumnIndex("questions_asked"));
+            int mark = Math.round(questions_right * MAX_STARS / questions_all);
+            if (markForTest < mark)
+            markForTest = mark;
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return markForTest ;
     }
 
     public int getInTestQuestionCount(String testName) {
@@ -118,7 +151,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cursorForAnswers.moveToFirst();
         testAnswer[] answers = new testAnswer[cursorForAnswers.getCount()];
         int i = 0;
-        while (cursorForAnswers.isAfterLast() == false) {
+        while (!cursorForAnswers.isAfterLast()) {
             String answerText = cursorForAnswers.getString(cursorForAnswers.getColumnIndex("answer"));
             boolean answerRight = false;
             if (cursorForAnswers.getInt(cursorForAnswers.getColumnIndex("right")) == 1) {
@@ -134,15 +167,24 @@ public class DBHelper extends SQLiteOpenHelper {
         return question;
     }
 
-    public int saveTestResult(int testId, int starsCount) {
+    public void saveTestResult(int testId, int rightQuestions, int allAskedQuestions, int testDoneTime) {
+        Long timestampLong = System.currentTimeMillis()/1000;
+
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues testResult = new ContentValues(1);
-        testResult.put("top_result", starsCount);
-        return db.update("tests", testResult, "id=?", new String[]{Integer.toString(testId)});
+        ContentValues testResult = new ContentValues(5);
+        testResult.put("test_id", testId);
+        testResult.put("test_done_datetime", timestampLong);
+        testResult.put("questions_asked", allAskedQuestions);
+        testResult.put("questions_right", rightQuestions);
+        testResult.put("test_done_time", testDoneTime);
+        db.insert("test_done", null, testResult);
     }
 
-    public int saveTestResult(String testName, int starsCount) {
-        int result = saveTestResult(getTestId(testName), starsCount);
-        return result;
+    public void saveTestResult(int testId, int rightQuestions, int allAskedQuestions) {
+        saveTestResult(testId, rightQuestions, allAskedQuestions, 0);
+    }
+
+    public void saveTestResult(String testName, int rightQuestions, int allAskedQuestions) {
+        saveTestResult(getTestId(testName), rightQuestions, allAskedQuestions);
     }
 }

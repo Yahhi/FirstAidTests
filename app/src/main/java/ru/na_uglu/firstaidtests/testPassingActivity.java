@@ -66,11 +66,12 @@ public class testPassingActivity extends AppCompatActivity {
 
     public void onClickCheckResult(View v) {
         int rightAnswersCount = getRightAnswersCount();
-        myDB.saveTestResult(testName, rightAnswersCount/userAnswers.length*5);
+        myDB.saveTestResult(testName, rightAnswersCount, userAnswers.length);
 
         Intent intent  = new Intent(v.getContext(), resultsActivity.class);
         intent.putExtra("allAnswersCount", userAnswers.length);
         intent.putExtra("rightAnswersCount", rightAnswersCount);
+        intent.putExtra("testName", testName);
         startActivity(intent);
     }
 

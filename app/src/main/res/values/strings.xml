@@ -10,4 +10,6 @@
     <string name="answerButton">Ответить</string>
     <string name="nextButton">next</string>
     <string name="rightAnswersText">Из них правильных ответов получено</string>
+
+    <string name="facebook_app_id">898285920274265</string>
 </resources>
