@@ -20,7 +20,7 @@ public class testPassingActivity extends AppCompatActivity {
     String testName;
     int[] userAnswers;
     int answersSet = 0;
-    int[] questionMapping;
+    testQuestion[] localQuestionsInOrder;
 
     boolean rightAnswer[];
     String checkedAnswerText = "";
@@ -42,15 +42,11 @@ public class testPassingActivity extends AppCompatActivity {
         this.setTitle(testName);
 
         myDB = new DBHelper(this);
-        int questionsCount = myDB.getInTestQuestionCount(testName);
-        userAnswers = new int[questionsCount];
-        questionMapping = new int[questionsCount];
+        localQuestionsInOrder = myDB.getRandomQuestions(testName);
+
+        userAnswers = new int[localQuestionsInOrder.length];
         for (int i = 0; i < userAnswers.length; i++) {
             userAnswers[i] = UNSET_ANSWER;
-            questionMapping[i] = UNSET_QUESTION_NUMBER;
-        }
-        for (int i = 0; i < questionMapping.length; i++) {
-            questionMapping[getRandomFreeQuestion()] = i;
         }
 
         currentQuestion++;
@@ -74,15 +70,6 @@ public class testPassingActivity extends AppCompatActivity {
         checkResults.setVisibility(View.INVISIBLE);
     }
 
-    private int getRandomFreeQuestion() {
-        Random random = new Random();
-        int freeQuestionNumber = random.nextInt(questionMapping.length);
-        while (questionMapping[freeQuestionNumber] != UNSET_QUESTION_NUMBER) {
-            freeQuestionNumber = random.nextInt(questionMapping.length);
-        }
-        return freeQuestionNumber;
-    }
-
     public void onClickCheckResult(View v) {
         int rightAnswersCount = getRightAnswersCount();
         myDB.saveTestResult(testName, rightAnswersCount, userAnswers.length);
@@ -103,7 +90,7 @@ public class testPassingActivity extends AppCompatActivity {
     }
 
     private int checkUserAnswer(int questionNumber, int userAnswer) {
-        testQuestion question = myDB.getQuestion(testName, questionMapping[questionNumber]);
+        testQuestion question = localQuestionsInOrder[questionNumber];
         if (question.answers[userAnswer].isRight) {
             return 1;
         } else {
@@ -129,7 +116,7 @@ public class testPassingActivity extends AppCompatActivity {
     private void showQuestion() {
         checkNextPrevButtonsState();
 
-        questionToShow = myDB.getQuestion(testName, questionMapping[currentQuestion]);
+        questionToShow = localQuestionsInOrder[currentQuestion];
         TextView questionText = (TextView) findViewById(R.id.testQuestion);
         questionText.setText(questionToShow.question);
 

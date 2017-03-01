@@ -9,9 +9,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.sql.Time;
 import java.util.GregorianCalendar;
+import java.util.Random;
 
 public class DBHelper extends SQLiteOpenHelper {
     static final String DATABASE_NAME = "FirstAidTests.db";
+
+    int UNSET_QUESTION_NUMBER = -1;
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, 6);
@@ -186,5 +189,35 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public void saveTestResult(String testName, int rightQuestions, int allAskedQuestions) {
         saveTestResult(getTestId(testName), rightQuestions, allAskedQuestions);
+    }
+
+    public testQuestion[] getRandomQuestions(String testName) {
+        int[] questionMapping;
+
+        testQuestion[] questions = new testQuestion[getInTestQuestionCount(testName)];
+        questionMapping = new int[questions.length];
+        for (int i = 0; i < questions.length; i++) {
+            questionMapping[i] = UNSET_QUESTION_NUMBER;
+        }
+
+        for (int i = 0; i < questionMapping.length; i++) {
+            questionMapping[getRandomFreeQuestion(questionMapping)] = i;
+        }
+
+        for (int i = 0; i < questionMapping.length; i++) {
+            questions[i] = getQuestion(testName, questionMapping[i]);
+            questions[i].mixAnswers();
+        }
+
+        return questions;
+    }
+
+    private int getRandomFreeQuestion(int[] questionMapping) {
+        Random random = new Random();
+        int freeQuestionNumber = random.nextInt(questionMapping.length);
+        while (questionMapping[freeQuestionNumber] != UNSET_QUESTION_NUMBER) {
+            freeQuestionNumber = random.nextInt(questionMapping.length);
+        }
+        return freeQuestionNumber;
     }
 }

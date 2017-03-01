@@ -1,5 +1,7 @@
 package ru.na_uglu.firstaidtests;
 
+import java.util.Random;
+
 /**
  * Created by User on 13.02.2017.
  */
@@ -15,6 +17,26 @@ public class testQuestion extends Object {
         answers[1] = new testAnswer(answerWrong1, false);
         answers[2] = new testAnswer(answerWrong2, false);
         answers[3] = new testAnswer(answerWrong3, false);
+    }
+
+    private testAnswer[] getAnswersInRandomOrder() {
+        testAnswer[] randomAnswers = new testAnswer[answers.length];
+        Random random = new Random();
+        boolean[] usedAnswer = new boolean[answers.length];
+        int i = 0;
+        while (i < randomAnswers.length) {
+            int randomAnswerId = random.nextInt(randomAnswers.length);
+            if (!usedAnswer[randomAnswerId]) {
+                usedAnswer[randomAnswerId] = true;
+                randomAnswers[i] = answers[randomAnswerId];
+                i++;
+            }
+        }
+        return  randomAnswers;
+    }
+
+    public void mixAnswers() {
+        answers = getAnswersInRandomOrder();
     }
 
     public testQuestion(String text, testAnswer[] answers) {
