@@ -11,6 +11,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import java.sql.Time;
 import java.util.Random;
 
 public class testPassingActivity extends AppCompatActivity {
@@ -21,10 +22,11 @@ public class testPassingActivity extends AppCompatActivity {
     int[] userAnswers;
     int answersSet = 0;
     testQuestion[] localQuestionsInOrder;
-
     boolean rightAnswer[];
     String checkedAnswerText = "";
     testQuestion questionToShow;
+
+    Long testStarted;
 
     int UNSET_ANSWER = -1;
     int UNSET_QUESTION_NUMBER = -1;
@@ -68,11 +70,13 @@ public class testPassingActivity extends AppCompatActivity {
 
         Button checkResults = (Button) findViewById(R.id.getResultButton);
         checkResults.setVisibility(View.INVISIBLE);
+
+        testStarted = System.currentTimeMillis()/1000;
     }
 
     public void onClickCheckResult(View v) {
         int rightAnswersCount = getRightAnswersCount();
-        myDB.saveTestResult(testName, rightAnswersCount, userAnswers.length);
+        myDB.saveTestResult(testName, rightAnswersCount, userAnswers.length, (int) (System.currentTimeMillis()/1000-testStarted));
 
         Intent intent  = new Intent(v.getContext(), resultsActivity.class);
         intent.putExtra("allAnswersCount", userAnswers.length);

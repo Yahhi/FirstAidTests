@@ -191,6 +191,10 @@ public class DBHelper extends SQLiteOpenHelper {
         saveTestResult(getTestId(testName), rightQuestions, allAskedQuestions);
     }
 
+    public void saveTestResult(String testName, int rightQuestions, int allAskedQuestions, int testDoneTime) {
+        saveTestResult(getTestId(testName), rightQuestions, allAskedQuestions, testDoneTime);
+    }
+
     public testQuestion[] getRandomQuestions(String testName) {
         int[] questionMapping;
 
