@@ -11,5 +11,17 @@
     <string name="nextButton">next</string>
     <string name="rightAnswersText">Из них правильных ответов получено</string>
 
+    <string name="title_activity_mode_navigation">Тесты</string>
+    <string name="mode">Режим</string>
+    <string name="mode_study">Обучение</string>
+    <string name="mode_normal">Стандарт</string>
+    <string name="mode_expert">Эксперт</string>
+    <string name="first_aid">Первая помощь</string>
+    <string name="general_name">Тестирование</string>
+
     <string name="facebook_app_id">898285920274265</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="statistics">Статистика</string>
 </resources>

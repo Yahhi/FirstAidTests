@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="@string/mode">
+        <menu>
+            <group
+                android:id="@+id/mode_selection"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/study_mode"
+                    android:icon="@drawable/ic_menu_camera"
+                    android:title="@string/mode_study"/>
+                <item
+                    android:id="@+id/standart_mode"
+                    android:icon="@drawable/ic_menu_gallery"
+                    android:title="@string/mode_normal"/>
+                <item
+                    android:id="@+id/expert_mode"
+                    android:icon="@drawable/ic_menu_slideshow"
+                    android:title="@string/mode_expert" />
+            </group>
+        </menu>
+    </item>
+    <group
+        android:id="@+id/other_actions"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/statistics"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="@string/statistics" />
+    </group>
+
+</menu>

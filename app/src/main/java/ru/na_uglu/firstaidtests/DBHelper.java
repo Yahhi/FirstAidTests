@@ -70,7 +70,7 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public firstAidTest[] getTests() {
+    public firstAidTest[] getTests(testMode mode) {
         SQLiteDatabase db = this.getReadableDatabase();
         int numberOfTests = (int) DatabaseUtils.queryNumEntries(db, "tests");
         firstAidTest[] tests = new firstAidTest[numberOfTests];
@@ -81,7 +81,7 @@ public class DBHelper extends SQLiteOpenHelper {
             tests[i++] = new firstAidTest(
                     cursor.getString(cursor.getColumnIndex("title")),
                     cursor.getString(cursor.getColumnIndex("description")),
-                    getTestResult(cursor.getInt(cursor.getColumnIndex("id")))
+                    getTestResult(cursor.getInt(cursor.getColumnIndex("id")), mode)
             );
             cursor.moveToNext();
         }
@@ -89,7 +89,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return tests;
     }
 
-    private int getTestResult(int testId) {
+    private int getTestResult(int testId, testMode mode) {
         final int MAX_STARS = 5;
 
         Long timestampLong = System.currentTimeMillis()/1000;
@@ -99,8 +99,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT questions_right, questions_asked FROM test_done " +
-                "WHERE ?-test_done_datetime < ? AND test_id = ?",
-                new String[]{timestampNow, maxTimeDifference, Integer.toString(testId)});
+                "WHERE ?-test_done_datetime < ? AND test_id = ? AND running_mode=?",
+                new String[]{timestampNow, maxTimeDifference, Integer.toString(testId), mode.toString()});
         int markForTest = 0;
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -170,36 +170,35 @@ public class DBHelper extends SQLiteOpenHelper {
         return question;
     }
 
-    public void saveTestResult(int testId, int rightQuestions, int allAskedQuestions, int testDoneTime) {
+    public void saveTestResult(int testId, int rightQuestions, int allAskedQuestions, int testDoneTime, testMode mode) {
         Long timestampLong = System.currentTimeMillis()/1000;
 
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues testResult = new ContentValues(5);
+        ContentValues testResult = new ContentValues(6);
         testResult.put("test_id", testId);
         testResult.put("test_done_datetime", timestampLong);
         testResult.put("questions_asked", allAskedQuestions);
         testResult.put("questions_right", rightQuestions);
         testResult.put("test_done_time", testDoneTime);
+        testResult.put("running_mode", mode.toString());
         db.insert("test_done", null, testResult);
     }
 
-    public void saveTestResult(int testId, int rightQuestions, int allAskedQuestions) {
-        saveTestResult(testId, rightQuestions, allAskedQuestions, 0);
+    public void saveTestResult(int testId, int rightQuestions, int allAskedQuestions, testMode mode) {
+        saveTestResult(testId, rightQuestions, allAskedQuestions, 0, mode);
     }
 
-    public void saveTestResult(String testName, int rightQuestions, int allAskedQuestions) {
-        saveTestResult(getTestId(testName), rightQuestions, allAskedQuestions);
+    public void saveTestResult(String testName, int rightQuestions, int allAskedQuestions, testMode mode) {
+        saveTestResult(getTestId(testName), rightQuestions, allAskedQuestions, mode);
     }
 
-    public void saveTestResult(String testName, int rightQuestions, int allAskedQuestions, int testDoneTime) {
-        saveTestResult(getTestId(testName), rightQuestions, allAskedQuestions, testDoneTime);
+    public void saveTestResult(String testName, int rightQuestions, int allAskedQuestions, int testDoneTime, testMode mode) {
+        saveTestResult(getTestId(testName), rightQuestions, allAskedQuestions, testDoneTime, mode);
     }
 
-    public testQuestion[] getRandomQuestions(String testName) {
-        int[] questionMapping;
-
-        testQuestion[] questions = new testQuestion[getInTestQuestionCount(testName)];
-        questionMapping = new int[questions.length];
+    public testQuestion[] getRandomQuestions(String testName, int questionsCount) {
+        testQuestion[] questions = new testQuestion[questionsCount];
+        int[] questionMapping = new int[questions.length];
         for (int i = 0; i < questions.length; i++) {
             questionMapping[i] = UNSET_QUESTION_NUMBER;
         }
@@ -216,6 +215,10 @@ public class DBHelper extends SQLiteOpenHelper {
         return questions;
     }
 
+    public testQuestion[] getRandomQuestions(String testName) {
+        return getRandomQuestions(testName, getInTestQuestionCount(testName));
+    }
+
     private int getRandomFreeQuestion(int[] questionMapping) {
         Random random = new Random();
         int freeQuestionNumber = random.nextInt(questionMapping.length);
@@ -223,5 +226,26 @@ public class DBHelper extends SQLiteOpenHelper {
             freeQuestionNumber = random.nextInt(questionMapping.length);
         }
         return freeQuestionNumber;
+    }
+
+    public testQuestion[] getLowRatedQuestions(String testName, int questionsCount) {
+        testQuestion[] questions = new testQuestion[questionsCount];
+        int[] questionMapping;
+        questionMapping = new int[questions.length];
+
+        for (int i = 0; i < questions.length; i++) {
+            questionMapping[i] = UNSET_QUESTION_NUMBER;
+        }
+
+        for (int i = 0; i < questionMapping.length; i++) {
+            questionMapping[getRandomFreeQuestion(questionMapping)] = i;
+        }
+
+        for (int i = 0; i < questionMapping.length; i++) {
+            questions[i] = getQuestion(testName, questionMapping[i]);
+            questions[i].mixAnswers();
+        }
+
+        return questions;
     }
 }

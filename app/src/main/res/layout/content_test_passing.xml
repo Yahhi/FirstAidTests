@@ -76,4 +76,13 @@
         android:layout_centerHorizontal="true"
         android:onClick="onClickCheckResult"/>
 
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/timeBar"
+        android:visibility="invisible"/>
+
 </RelativeLayout>

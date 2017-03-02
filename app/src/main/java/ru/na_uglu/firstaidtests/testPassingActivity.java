@@ -2,34 +2,39 @@ package ru.na_uglu.firstaidtests;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import java.sql.Time;
-import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class testPassingActivity extends AppCompatActivity {
 
     DBHelper myDB;
     int currentQuestion = -1;
     String testName;
+    testMode mode;
+
     int[] userAnswers;
     int answersSet = 0;
     testQuestion[] localQuestionsInOrder;
     boolean rightAnswer[];
     String checkedAnswerText = "";
     testQuestion questionToShow;
+    boolean prevNextButtonsEnabled;
 
     Long testStarted;
 
     int UNSET_ANSWER = -1;
-    int UNSET_QUESTION_NUMBER = -1;
+    int TIME_ON_TEST = 60000;
+    int TIMEBAR_STEP = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +48,42 @@ public class testPassingActivity extends AppCompatActivity {
         testName = getIntent().getExtras().getString("testName");
         this.setTitle(testName);
 
+        mode = (testMode) getIntent().getSerializableExtra("mode");
+
         myDB = new DBHelper(this);
-        localQuestionsInOrder = myDB.getRandomQuestions(testName);
+        if (mode == testMode.STUDY) {
+            localQuestionsInOrder = myDB.getLowRatedQuestions(testName, 2);
+            enablePrevNextButtons(false);
+        } else if (mode == testMode.EXPERT) {
+            localQuestionsInOrder = myDB.getRandomQuestions(testName, 2);
+            enablePrevNextButtons(false);
+            CountDownTimer closePassTimer = new CountDownTimer(TIME_ON_TEST, TIMEBAR_STEP) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    ProgressBar timeBar = (ProgressBar) findViewById(R.id.timeBar);
+                    timeBar.setProgress((int) ((TIME_ON_TEST-millisUntilFinished)/TIMEBAR_STEP));
+                }
+
+                @Override
+                public void onFinish() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Button button = (Button) findViewById(R.id.getResultButton);
+                            button.performClick();
+                        }
+                    });
+                }
+            };
+            closePassTimer.start();
+
+            ProgressBar timeBar = (ProgressBar) findViewById(R.id.timeBar);
+            timeBar.setVisibility(View.VISIBLE);
+            timeBar.setMax(60);
+        } else {
+            localQuestionsInOrder = myDB.getRandomQuestions(testName);
+            enablePrevNextButtons(true);
+        }
 
         userAnswers = new int[localQuestionsInOrder.length];
         for (int i = 0; i < userAnswers.length; i++) {
@@ -74,9 +113,13 @@ public class testPassingActivity extends AppCompatActivity {
         testStarted = System.currentTimeMillis()/1000;
     }
 
+    private void enablePrevNextButtons(boolean b) {
+        prevNextButtonsEnabled = b;
+    }
+
     public void onClickCheckResult(View v) {
         int rightAnswersCount = getRightAnswersCount();
-        myDB.saveTestResult(testName, rightAnswersCount, userAnswers.length, (int) (System.currentTimeMillis()/1000-testStarted));
+        myDB.saveTestResult(testName, rightAnswersCount, userAnswers.length, (int) (System.currentTimeMillis()/1000-testStarted), mode);
 
         Intent intent  = new Intent(v.getContext(), resultsActivity.class);
         intent.putExtra("allAnswersCount", userAnswers.length);
@@ -118,7 +161,7 @@ public class testPassingActivity extends AppCompatActivity {
     }
 
     private void showQuestion() {
-        checkNextPrevButtonsState();
+        checkControlButtonsState();
 
         questionToShow = localQuestionsInOrder[currentQuestion];
         TextView questionText = (TextView) findViewById(R.id.testQuestion);
@@ -143,19 +186,21 @@ public class testPassingActivity extends AppCompatActivity {
         buttonSaveAnswer.setEnabled(false);
     }
 
-    private void checkNextPrevButtonsState() {
-        Button nextButton = (Button) findViewById(R.id.nextButton);
-        Button prevButton = (Button) findViewById(R.id.previousButton);
-        final int maxCurrentQuestion = userAnswers.length-1;
-        if (currentQuestion == 0) {
+    private void checkControlButtonsState() {
+        if (prevNextButtonsEnabled) {
+            Button nextButton = (Button) findViewById(R.id.nextButton);
+            Button prevButton = (Button) findViewById(R.id.previousButton);
+            final int maxCurrentQuestion = userAnswers.length - 1;
+            if (currentQuestion == 0) {
                 prevButton.setVisibility(View.INVISIBLE);
-        } else if (currentQuestion == maxCurrentQuestion) {
+            } else if (currentQuestion == maxCurrentQuestion) {
                 nextButton.setVisibility(View.INVISIBLE);
-        } else {
-            prevButton.setVisibility(View.VISIBLE);
-            prevButton.setVisibility(View.VISIBLE);
-        }
+            } else {
+                prevButton.setVisibility(View.VISIBLE);
+                prevButton.setVisibility(View.VISIBLE);
+            }
 
+        }
         if (allAnswersSet()) {
             Button checkResults = (Button) findViewById(R.id.getResultButton);
             checkResults.setVisibility(View.VISIBLE);
