@@ -1,8 +1,10 @@
 package ru.na_uglu.firstaidtests;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -145,12 +147,43 @@ public class testPassingActivity extends AppCompatActivity {
         }
     }
 
-    public void onClickAcceptAnswers(View v) {
+    public void onClickAcceptAnswer(View v) {
         saveUserAnswer();
-        if (currentQuestion < userAnswers.length-1) {
-            currentQuestion++;
+
+        if (mode == testMode.STUDY) {
+            showOneQuestionResult();
+        } else {
+            if (currentQuestion < userAnswers.length-1) {
+                currentQuestion++;
+            }
+            showQuestion();
         }
-        showQuestion();
+    }
+
+    private void showOneQuestionResult() {
+        AlertDialog.Builder oneQuestionResultDialog = new AlertDialog.Builder(this);
+        if (checkUserAnswer(currentQuestion, userAnswers[currentQuestion]) == 1) {
+            oneQuestionResultDialog.setTitle("Верно");
+        } else {
+            oneQuestionResultDialog.setTitle("Не верно");
+        }
+        oneQuestionResultDialog.setMessage(localQuestionsInOrder[currentQuestion].comment + "\n" +
+                "Правильный ответ: " + localQuestionsInOrder[currentQuestion].getRightAnswerText());
+        oneQuestionResultDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                if (currentQuestion < userAnswers.length-1) {
+                    currentQuestion++;
+                    showQuestion();
+                } else {
+                    Button checkResult = (Button) findViewById(R.id.getResultButton);
+                    checkResult.performClick();
+                }
+            }
+        });
+        oneQuestionResultDialog.setCancelable(false);
+        oneQuestionResultDialog.create().show();
     }
 
     private void saveUserAnswer() {

@@ -115,6 +115,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return markForTest ;
     }
 
+
     public int getInTestQuestionCount(String testName) {
         int testId = getTestId(testName);
         SQLiteDatabase db = this.getReadableDatabase();
@@ -141,12 +142,14 @@ public class DBHelper extends SQLiteOpenHelper {
 
         int testId = getTestId(testName);
 
-        Cursor cursorForQuestion = db.rawQuery("SELECT id, question FROM questions WHERE test_id = ?", new String[]{Integer.toString(testId)});
+        Cursor cursorForQuestion = db.rawQuery("SELECT id, question, comment FROM questions WHERE test_id = ?", new String[]{Integer.toString(testId)});
         String questionText = "";
+        String questionComment = "";
         int questionId = 0;
         if (cursorForQuestion.moveToPosition(questionNumber)) {
             questionText = cursorForQuestion.getString(cursorForQuestion.getColumnIndex("question"));
             questionId = cursorForQuestion.getInt(cursorForQuestion.getColumnIndex("id"));
+            questionComment = cursorForQuestion.getString(cursorForQuestion.getColumnIndex("comment"));
         }
         cursorForQuestion.close();
 
@@ -166,7 +169,7 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         cursorForAnswers.close();
 
-        testQuestion question = new testQuestion(questionText, answers);
+        testQuestion question = new testQuestion(questionText, answers, questionComment);
         return question;
     }
 

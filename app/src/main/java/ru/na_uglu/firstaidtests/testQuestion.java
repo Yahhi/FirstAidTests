@@ -9,6 +9,7 @@ import java.util.Random;
 public class testQuestion extends Object {
     public String question;
     public testAnswer[] answers;
+    public String comment;
 
     public testQuestion(String text, String answerRight, String answerWrong1, String answerWrong2, String answerWrong3) {
         question = text;
@@ -17,6 +18,7 @@ public class testQuestion extends Object {
         answers[1] = new testAnswer(answerWrong1, false);
         answers[2] = new testAnswer(answerWrong2, false);
         answers[3] = new testAnswer(answerWrong3, false);
+
     }
 
     private testAnswer[] getAnswersInRandomOrder() {
@@ -42,6 +44,13 @@ public class testQuestion extends Object {
     public testQuestion(String text, testAnswer[] answers) {
         question = text;
         this.answers = answers;
+        comment = "";
+    }
+
+    public testQuestion(String text, testAnswer[] answers, String comment) {
+        question = text;
+        this.answers = answers;
+        this.comment = comment;
     }
 
     public int getAnswerId(String text) {
@@ -53,6 +62,16 @@ public class testQuestion extends Object {
             }
         }
         return id;
+    }
+
+    public String getRightAnswerText() {
+        String rightAnswer = "";
+        for (testAnswer answer : answers) {
+            if (answer.isRight) {
+                rightAnswer = answer.text;
+            }
+        }
+        return rightAnswer;
     }
 }
 
