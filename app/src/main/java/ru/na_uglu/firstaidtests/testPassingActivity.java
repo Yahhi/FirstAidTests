@@ -14,6 +14,12 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -28,11 +34,14 @@ public class testPassingActivity extends AppCompatActivity {
     int answersSet = 0;
     testQuestion[] localQuestionsInOrder;
     boolean rightAnswer[];
+    int rightAnswersCount = 0;
     String checkedAnswerText = "";
     testQuestion questionToShow;
     boolean prevNextButtonsEnabled;
 
     Long testStarted;
+
+    InterstitialAd mInterstitialAd;
 
     int UNSET_ANSWER = -1;
     int TIME_ON_TEST = 60000;
@@ -113,6 +122,24 @@ public class testPassingActivity extends AppCompatActivity {
         checkResults.setVisibility(View.INVISIBLE);
 
         testStarted = System.currentTimeMillis()/1000;
+
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId(getResources().getString(R.string.banner_ad_intersitional));
+        requestNewInterstitial();
+
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                requestNewInterstitial();
+                openResultsActivity();
+            }
+        });
+
+    }
+
+    private void requestNewInterstitial() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mInterstitialAd.loadAd(adRequest);
     }
 
     private void enablePrevNextButtons(boolean b) {
@@ -120,10 +147,19 @@ public class testPassingActivity extends AppCompatActivity {
     }
 
     public void onClickCheckResult(View v) {
-        int rightAnswersCount = getRightAnswersCount();
+        rightAnswersCount = getRightAnswersCount();
         myDB.saveTestResult(testName, rightAnswersCount, userAnswers.length, (int) (System.currentTimeMillis()/1000-testStarted), mode);
 
-        Intent intent  = new Intent(v.getContext(), resultsActivity.class);
+        if (mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+        } else {
+            openResultsActivity();
+        }
+
+    }
+
+    private void openResultsActivity() {
+        Intent intent  = new Intent(this.getApplicationContext(), resultsActivity.class);
         intent.putExtra("allAnswersCount", userAnswers.length);
         intent.putExtra("rightAnswersCount", rightAnswersCount);
         intent.putExtra("testName", testName);

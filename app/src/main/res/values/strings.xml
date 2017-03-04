@@ -21,6 +21,14 @@
 
     <string name="facebook_app_id">898285920274265</string>
 
+    <string name="banner_ad_intersitional">ca-app-pub-3873894144201597/2935761136</string>
+    <string name="banner_ad_unit_id">ca-app-pub-3873894144201597/3485661130</string>
+    <string name="banner_ad_program_id">ca-app-pub-3873894144201597~1459027930</string>
+<!--
+    <string name="banner_ad_intersitional">ca-app-pub-1237259514169936/1079156002</string>
+    <string name="banner_ad_unit_id">ca-app-pub-1237259514169936/8602422807</string>
+    <string name="banner_ad_program_id">ca-app-pub-1237259514169936~7125689603</string>
+    -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="statistics">Статистика</string>

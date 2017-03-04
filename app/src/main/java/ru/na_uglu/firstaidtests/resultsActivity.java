@@ -15,6 +15,9 @@ import com.facebook.FacebookSdk;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareButton;
 import com.facebook.share.widget.ShareDialog;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 
 public class resultsActivity extends AppCompatActivity {
 
@@ -54,6 +57,11 @@ public class resultsActivity extends AppCompatActivity {
         facebookShareButton.setShareContent(testCompletedLink);
         callbackManager = CallbackManager.Factory.create();
         shareDialog = new ShareDialog(this);
+
+        MobileAds.initialize(getApplicationContext(), getResources().getString(R.string.banner_ad_program_id));
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
     }
 
 
