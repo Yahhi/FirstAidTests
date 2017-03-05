@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "370396516961",
+    "firebase_url": "https://firstaidtests.firebaseio.com",
+    "project_id": "firstaidtests",
+    "storage_bucket": "firstaidtests.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:370396516961:android:445dcfa5609d14f1",
+        "android_client_info": {
+          "package_name": "ru.na_uglu.firstaidtests"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "370396516961-jsti6iu60n3p1q94oojtfhncd1pjc3hv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjre6AN6Oy83gLTE4z9C8PI3CR-1auorE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

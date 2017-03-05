@@ -1,6 +1,7 @@
 package ru.na_uglu.firstaidtests;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -20,7 +21,8 @@ public class ModeNavigationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     DBHelper myDB;
-    testMode mode;
+    testMode mode = testMode.NORMAL;
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +48,8 @@ public class ModeNavigationActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setCheckedItem(R.id.standart_mode);
 
         myDB = new DBHelper(this);
-        mode = testMode.NORMAL;
         fillTestList();
 
         ListView listOfTests = (ListView)findViewById(R.id.listOfTests);
@@ -64,6 +64,47 @@ public class ModeNavigationActivity extends AppCompatActivity
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("mode", mode);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mode = (testMode) savedInstanceState.getSerializable("mode");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        SharedPreferences preferencies = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor preferenciesEditor = preferencies.edit();
+        preferenciesEditor.putString("mode", mode.toString());
+        preferenciesEditor.apply();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences preferencies = getPreferences(MODE_PRIVATE);
+        String modeString = preferencies.getString("mode", testMode.NORMAL.toString());
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        if (modeString.equals(testMode.EXPERT.toString())) {
+            mode = testMode.EXPERT;
+            navigationView.setCheckedItem(R.id.expert_mode);
+        } else if (modeString.equals(testMode.STUDY.toString())) {
+            mode = testMode.STUDY;
+            navigationView.setCheckedItem(R.id.study_mode);
+        } else {
+            mode = testMode.NORMAL;
+            navigationView.setCheckedItem(R.id.standart_mode);
+        }
+
     }
 
     private void fillTestList() {
