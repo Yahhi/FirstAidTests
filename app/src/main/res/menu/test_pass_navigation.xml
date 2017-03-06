@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/back_question_menu_item"
+        android:icon="@android:drawable/ic_media_previous"
+        android:title="@string/prevButton"
+        app:showAsAction="always" />
+    <item
+        android:title="@string/unanswerdQuestion"
+        app:showAsAction="ifRoom|withText"
+        android:enabled="false"
+        android:id="@+id/go_to_unanswered_menu_item" />
+    <item
+        android:id="@+id/next_question_menu_item"
+        android:icon="@android:drawable/ic_media_next"
+        android:title="@string/nextButton"
+        app:showAsAction="always" />
+    <item android:title="@string/endTest"
+        android:id="@+id/check_results_menu_item"
+        app:showAsAction="never"
+        android:icon="@android:drawable/checkbox_on_background" />
+</menu>

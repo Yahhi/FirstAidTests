@@ -6,9 +6,9 @@
     <string name="questionAsked">вопросов задано</string>
     <string name="testQuestion">Вопрос теста</string>
     <string name="checkResult">Узнать результат</string>
-    <string name="prevButton">prev</string>
+    <string name="prevButton">Предыдущий</string>
     <string name="answerButton">Ответить</string>
-    <string name="nextButton">next</string>
+    <string name="nextButton">Следующий</string>
     <string name="rightAnswersText">Из них правильных ответов получено</string>
 
     <string name="title_activity_mode_navigation">Тесты</string>
@@ -32,4 +32,6 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="statistics">Статистика</string>
+    <string name="unanswerdQuestion">Неотвеченные вопросы</string>
+    <string name="endTest">Закончить тест</string>
 </resources>

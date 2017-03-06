@@ -4,9 +4,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.support.design.widget.NavigationView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -16,12 +19,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.ads.MobileAds;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class testPassingActivity extends AppCompatActivity {
 
@@ -61,6 +59,8 @@ public class testPassingActivity extends AppCompatActivity {
 
         mode = (testMode) getIntent().getSerializableExtra("mode");
 
+
+
         myDB = new DBHelper(this);
         if (mode == testMode.STUDY) {
             localQuestionsInOrder = myDB.getLowRatedQuestions(testName, 2);
@@ -77,13 +77,14 @@ public class testPassingActivity extends AppCompatActivity {
 
                 @Override
                 public void onFinish() {
-                    runOnUiThread(new Runnable() {
+                    /*runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             Button button = (Button) findViewById(R.id.getResultButton);
                             button.performClick();
                         }
-                    });
+                    });*/
+                    checkResult();
                 }
             };
             closePassTimer.start();
@@ -111,9 +112,10 @@ public class testPassingActivity extends AppCompatActivity {
                 if (checkedId >= 0) { // Бывают нажатия на кнопки с перекрытием...
                     RadioButton checkedButton = (RadioButton) findViewById(group.getCheckedRadioButtonId());
                     checkedAnswerText = (String) checkedButton.getText();
+                    acceptAnswer();
 
-                    Button buttonSaveAnswer = (Button) findViewById(R.id.answerAcceptButton);
-                    buttonSaveAnswer.setEnabled(true);
+                    /*Button buttonSaveAnswer = (Button) findViewById(R.id.answerAcceptButton);
+                    buttonSaveAnswer.setEnabled(true);*/
                 }
             }
         });
@@ -137,6 +139,30 @@ public class testPassingActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.test_pass_navigation, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.back_question_menu_item) {
+            showPreviousQuestion();
+            return true;
+        } else if (id == R.id.next_question_menu_item) {
+            showNextQuestion();
+            return true;
+        } else if (id == R.id.check_results_menu_item) {
+            checkResult();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     private void requestNewInterstitial() {
         AdRequest adRequest = new AdRequest.Builder().build();
         mInterstitialAd.loadAd(adRequest);
@@ -147,6 +173,10 @@ public class testPassingActivity extends AppCompatActivity {
     }
 
     public void onClickCheckResult(View v) {
+        checkResult();
+    }
+
+    private void checkResult() {
         rightAnswersCount = getRightAnswersCount();
         myDB.saveTestResult(testName, rightAnswersCount, userAnswers.length, (int) (System.currentTimeMillis()/1000-testStarted), mode);
 
@@ -155,7 +185,6 @@ public class testPassingActivity extends AppCompatActivity {
         } else {
             openResultsActivity();
         }
-
     }
 
     private void openResultsActivity() {
@@ -183,7 +212,7 @@ public class testPassingActivity extends AppCompatActivity {
         }
     }
 
-    public void onClickAcceptAnswer(View v) {
+    public void acceptAnswer() {
         saveUserAnswer();
 
         if (mode == testMode.STUDY) {
@@ -251,29 +280,43 @@ public class testPassingActivity extends AppCompatActivity {
             rightAnswer[i++] = answer.isRight;
         }
 
-        Button buttonSaveAnswer = (Button) findViewById(R.id.answerAcceptButton);
-        buttonSaveAnswer.setEnabled(false);
+        /*Button buttonSaveAnswer = (Button) findViewById(R.id.answerAcceptButton);
+        buttonSaveAnswer.setEnabled(false);*/
     }
 
     private void checkControlButtonsState() {
-        if (prevNextButtonsEnabled) {
-            Button nextButton = (Button) findViewById(R.id.nextButton);
-            Button prevButton = (Button) findViewById(R.id.previousButton);
-            final int maxCurrentQuestion = userAnswers.length - 1;
-            if (currentQuestion == 0) {
-                prevButton.setVisibility(View.INVISIBLE);
-            } else if (currentQuestion == maxCurrentQuestion) {
-                nextButton.setVisibility(View.INVISIBLE);
-            } else {
-                prevButton.setVisibility(View.VISIBLE);
-                prevButton.setVisibility(View.VISIBLE);
-            }
-
-        }
+        invalidateOptionsMenu();
         if (allAnswersSet()) {
             Button checkResults = (Button) findViewById(R.id.getResultButton);
             checkResults.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (prevNextButtonsEnabled) {
+            MenuItem prevMenuItem = menu.findItem(R.id.back_question_menu_item);
+            MenuItem nextMenuItem = menu.findItem(R.id.next_question_menu_item);
+            final int maxCurrentQuestion = userAnswers.length - 1;
+            if (currentQuestion == 0) {
+                prevMenuItem.setEnabled(false);
+            } else if (currentQuestion == maxCurrentQuestion) {
+                nextMenuItem.setEnabled(false);
+            } else {
+                prevMenuItem.setEnabled(true);
+                nextMenuItem.setEnabled(true);
+            }
+        }
+        MenuItem unansweredQuestionMenuItem = menu.findItem(R.id.go_to_unanswered_menu_item);
+        if (!allAnswersSet()) {
+            unansweredQuestionMenuItem.setEnabled(true);
+        } else {
+            unansweredQuestionMenuItem.setEnabled(false);
+        }
+        this.setTitle("Вопрос " + Integer.toString(currentQuestion+1) +
+                "/" + Integer.toString(localQuestionsInOrder.length));
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     private boolean allAnswersSet() {
@@ -284,12 +327,12 @@ public class testPassingActivity extends AppCompatActivity {
         return answersSetEqualAllAnswers;
     }
 
-    public void prevButtonClick(View view) {
+    public void showPreviousQuestion() {
         currentQuestion--;
         showQuestion();
     }
 
-    public void nextButtonClick(View view) {
+    public void showNextQuestion() {
         currentQuestion++;
         showQuestion();
     }
